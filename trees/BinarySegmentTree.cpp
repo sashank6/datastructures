@@ -1,6 +1,7 @@
 #include<iostream>
 #include<vector>
 #include<cmath>
+#include<algorithm>
 using namespace std;
 
 struct TreeNode
@@ -71,7 +72,7 @@ TreeNode * createSegTree(vector<int> v,int start,int end)
 
 int findSum(TreeNode *t,int start,int end)
 {
-	if(start==t->start && end==t->end)
+	if(start==t->start && end==t->end || (t->left==0 && t->right==0 && t->start>=start && t->end<=end))
 		return t->val;
 	if(t->left!=0)
 	{
@@ -82,16 +83,54 @@ int findSum(TreeNode *t,int start,int end)
 			return findSum(t->left,start,end);
 
 		if(start>=t->left->start && end > t->left->end)
-			return findSum(t->left,start,t->left->end)+findSum(t->right,t->left->end+1,end);
+			return findSum(t->left,start,t->left->end)+findSum(t->right,t->right->start,end);
 
 	}
 
 }
 
 
+TreeNode* findMin(TreeNode *root,int start,int end){
+
+	if(root->left==0 && root->right==0)
+		if(root->start>=start && root->end<=end)
+			return root;
+
+	if(root->left!=0){
+
+		if(start > root->left->end){
+			return findMin(root->right,start,end);
+		}
+
+		if(root->left->end<end){
+
+			TreeNode* lt=findMin(root->left,start,root->left->end);
+			TreeNode* rt=findMin(root->right,root->right->start,end);
+
+			return lt->val <rt->val?lt:rt;
+
+		}
+
+		if(root->left->end>=end){
+			return findMin(root->left,start,end);
+		}
+
+
+	}
+
+	return 0;
+
+
+}
+
+
+
+
+
+
 int main()
 {
-	int arr[]={1,3,5,7,9};
+	int arr[]={1,8,7,2,6,1};
 
 	vector<int> num;
 
@@ -108,7 +147,12 @@ int main()
 
 	cout<<endl;
 
-	cout<<findSum(tr,1,3)<<endl;
+	cout<<findSum(tr,3,20)<<endl;
+
+	TreeNode* r=findMin(tr,3,20);
+	if(r!=0)
+		cout<<(r->val)<<endl;
+
+
 
 }
-
